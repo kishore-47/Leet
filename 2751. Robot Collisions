@@ -1,0 +1,59 @@
+import java.util.*;
+
+class Solution {
+    public List<Integer> survivedRobotsHealths(int[] positions, int[] healths, String directions) {
+        int n = positions.length;
+        
+        // Store robots as [position, health, direction, index]
+        int[][] robots = new int[n][4];
+        for (int i = 0; i < n; i++) {
+            robots[i][0] = positions[i];
+            robots[i][1] = healths[i];
+            robots[i][2] = directions.charAt(i);
+            robots[i][3] = i;
+        }
+        
+        // Sort by position
+        Arrays.sort(robots, (a, b) -> a[0] - b[0]);
+        
+        Stack<Integer> stack = new Stack<>();
+        int[] health = Arrays.copyOf(healths, n);
+        
+        for (int[] robot : robots) {
+            int i = robot[3];
+            char dir = (char) robot[2];
+            
+            if (dir == 'R') {
+                stack.push(i);
+            } else {
+                while (!stack.isEmpty() && health[i] > 0) {
+                    int j = stack.peek();
+                    
+                    if (health[j] < health[i]) {
+                        health[j] = 0;
+                        stack.pop();
+                        health[i]--;
+                    } else if (health[j] > health[i]) {
+                        health[j]--;
+                        health[i] = 0;
+                    } else {
+                        health[j] = 0;
+                        health[i] = 0;
+                        stack.pop();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Collect survivors in original order
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (health[i] > 0) {
+                result.add(health[i]);
+            }
+        }
+        
+        return result;
+    }
+}
